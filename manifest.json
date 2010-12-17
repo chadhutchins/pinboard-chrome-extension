@@ -1,0 +1,16 @@
+{
+  "name": "Pinboard.in Bookmarker",
+  "version": "1.2",
+  "description": "This extension allows you to add bookmarks to your pinboard.in account. Questions? Comments? hit me up @chadhutchins",
+  "browser_action": {
+    "default_icon": "pinboard.png",
+    "popup": "popup.html"
+  },
+  "icons": {
+    "128": "pinboard.png"
+  },
+  "permissions": [
+    "https://api.pinboard.in/",
+    "tabs"
+  ]
+}

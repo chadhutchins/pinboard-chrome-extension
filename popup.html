@@ -1,0 +1,126 @@
+<style>
+body {
+  min-width:357px;
+  overflow-x:hidden;
+}
+</style>
+
+<script>
+chrome.tabs.getSelected(null, function(tab) {
+    setDefaults(tab.url,tab.title);
+});
+
+var req = new XMLHttpRequest();
+
+function setDefaults(url,title)
+{
+    document.getElementById("url").value = url;
+    document.getElementById("title").value = title;
+}
+
+function submitLink()
+{
+    if (checkRequiredFields())
+    {
+        req.open(
+            "GET",
+            "https://api.pinboard.in/v1/posts/add?" +
+                "url=" + document.getElementById("url").value +
+                "&title=" + document.getElementById("title").value +
+                "&description=" + document.getElementById("description").value +
+                "&tags=" + document.getElementById("tags").value + 
+                "&shared=" + document.getElementById("shared").value,
+            true);
+        req.onload = posted;
+        req.send(null);
+    }
+}
+
+function posted()
+{
+    var xmlDoc = req.responseXML;
+    var results = xmlDoc.getElementsByTagName("result");
+    var code = results[0].attributes.getNamedItem("code").nodeValue;
+
+    document.getElementById("form").style.display = 'none';
+    
+    if (code=="done")
+    {
+        document.getElementById("success").style.display = '';
+    }
+    else
+    {
+        document.getElementById("failed").style.display = ''; 
+        document.getElementById("error").innerHTML = code;   
+    }
+}
+
+function checkRequiredFields()
+{
+    var good = true;
+    var description = document.getElementById("description").value;
+    if (description=="")
+    {
+        showRequiredField("description");
+        good = false;
+    }
+    var url = document.getElementById("url").value;
+    if (url=="")
+    {
+        showRequiredField("url");
+        good = false;
+    }
+    return good;
+}
+
+function showRequiredField(field)
+{
+    var field = document.getElementById(field).style.border = "1px solid red";
+}
+</script>
+
+<div id="form"> 
+    <p><strong>You must be logged in to pinboard.in to post a link.</strong></p>  
+    <table>
+        <tr>
+            <td>URL (required)</td>
+            <td><input type="text" id="url" size="70"></td>
+        </tr>
+        <tr>
+            <td>title</td>
+            <td><input type="text" id="title" size="70"</td>
+        </tr>
+        <tr>
+            <td>description (required)</td>
+            <td><textarea id="description" cols="70" rows="4"></textarea></td>
+        </tr>
+        <tr>
+            <td>tags</td>
+            <td><input name="tags" autocomplete="off" id="tags" size="70" value=""></td>
+        </tr>
+        <tr>
+            <td>shared</td>
+            <td>
+                <select id="shared">
+                    <option selected="selected" value="yes">yes</option>
+                    <option value="no">no</option>
+                </select>
+            </td>
+        </tr>  
+        <tr>
+            <td></td>
+            <td>
+                <input type="button" value="add bookmark" onclick="submitLink();">
+            </td>
+        </tr>
+    </table>
+</div>
+
+<div id="success" style="display:none;">
+    <h3>Link posted successfully.</h3>
+</div>
+
+<div id="failed" style="display:none;">
+    <h3>You're link wasn't posted.</h3>
+    <p>pinboard.in API error: <strong><span id="error"></span></strong></p> 
+</div>
